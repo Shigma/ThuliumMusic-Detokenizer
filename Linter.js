@@ -8,7 +8,7 @@ class TmLinter {
     this.$detok = false;
   }
 
-  static isLinear(command) {
+  static oneLine(command) {
     const linearTypes = ['include', 'end'];
     return linearTypes.includes(command.Type);
   }
@@ -23,7 +23,7 @@ class TmLinter {
     // Library
     for (const command of this.Source.Library) {
       if (command.Head) this.Library += command.Head + '\n\n';
-      if (!TmLinter.isLinear(command)) {
+      if (!TmLinter.oneLine(command)) {
         this.Library += command.Code.join('\n');
       }
     }
@@ -44,8 +44,17 @@ class TmLinter {
           if (!track.Play) result += ':'
           if (track.Name) result += track.Name + ':'
           result += track.Instruments.map(inst => {
-            return inst.Name + this.detokContent(inst.Spec);
-          }).join(',');
+            let result = inst.Space + inst.Name
+            inst.Dict.forEach(decl => {
+              result += '[' + decl.Content
+              if (decl.Pitches) {
+                result += '=' + decl.Pitches.map(TmLinter.detokPitch).join('')
+              }
+              result += ']'
+            });
+            result += this.detokContent(inst.Spec)
+            return result
+          }).join(',')
           result += '>'
         }
         result += this.detokContent(track.Content) + '\n\n';
@@ -91,7 +100,7 @@ class TmLinter {
         }
         break;
       case 'Note':
-        result += this.detokNote(token);
+        result += TmLinter.detokNote(token);
         break;
       case 'Subtrack':
         result += '{';
@@ -163,15 +172,16 @@ class TmLinter {
     return result;
   }
 
-  detokNote(note){
+  static detokPitch(pitch) {
+    return pitch.Degree + pitch.PitOp + pitch.Chord + pitch.VolOp;
+  }
+
+  static detokNote(note){
     let result = '';
-    function detokPitch(pitch) {
-      return pitch.Degree + pitch.PitOp + pitch.Chord + pitch.VolOp;
-    }
     if (note.Pitches.length > 1) {
-      result += '[' + note.Pitches.map(detokPitch).join('') + ']';
+      result += '[' + note.Pitches.map(TmLinter.detokPitch).join('') + ']';
     } else {
-      result += detokPitch(note.Pitches[0]);
+      result += TmLinter.detokPitch(note.Pitches[0]);
     }
     result += note.PitOp + note.Chord + note.VolOp + note.DurOp + '`'.repeat(note.Stac);
     return result;
