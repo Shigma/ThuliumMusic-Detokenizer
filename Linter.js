@@ -34,7 +34,9 @@ class TmLinter {
       for (const comment of section.Comment) {
         result += '//' + comment + '\n';
       }
-      if (section.Comment.length === 0) result += '\n';
+      if (section.Comment.length === 0 && this.Source.Sections.indexOf(section) !== 0) {
+        result += '\n';
+      }
       if (section.Prolog.length > 0) {
         result += this.detokContent(section.Prolog) + '\n\n';
       }
@@ -46,11 +48,15 @@ class TmLinter {
           result += track.Instruments.map(inst => {
             let result = inst.Space + inst.Name
             inst.Dict.forEach(decl => {
-              result += '[' + decl.Content
-              if (decl.Pitches) {
-                result += '=' + decl.Pitches.map(TmLinter.detokPitch).join('')
+              if (decl.Generated) {
+                return
+              } else {
+                result += '[' + decl.Name
+                if (decl.Pitches) {
+                  result += '=' + decl.Pitches.map(TmLinter.detokPitch).join('')
+                }
+                result += ']'
               }
-              result += ']'
             });
             result += this.detokContent(inst.Spec)
             return result
@@ -173,15 +179,15 @@ class TmLinter {
   }
 
   static detokPitch(pitch) {
-    return pitch.Degree + pitch.PitOp + pitch.Chord + pitch.VolOp;
+    return pitch.Pitch + pitch.PitOp + pitch.Chord + pitch.VolOp;
   }
 
   static detokNote(note){
     let result = '';
-    if (note.Pitches.length > 1) {
-      result += '[' + note.Pitches.map(TmLinter.detokPitch).join('') + ']';
+    if (note.Pitch.length > 1) {
+      result += '[' + note.Pitch.map(TmLinter.detokPitch).join('') + ']';
     } else {
-      result += TmLinter.detokPitch(note.Pitches[0]);
+      result += TmLinter.detokPitch(note.Pitch[0]);
     }
     result += note.PitOp + note.Chord + note.VolOp + note.DurOp + '`'.repeat(note.Stac);
     return result;
