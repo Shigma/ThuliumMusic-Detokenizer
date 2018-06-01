@@ -1,0 +1,37 @@
+
+# Spacing between the sharp mark and the command
+command-spacing: 1
+
+# Case of letters in the command
+command-case: lower         # lower, upper, first-upper
+
+# Spacing between sections
+section-spacing:
+  include-comment: true
+  spacing-lines: 2          # at least 2
+
+# Indenting mode in subtracks
+subtrack-indent:
+  indent-mode: hang         # hang, protrude
+  spacing: 2                # only used in 'protrude' mode
+
+# Alias mode in function calls
+function-alias: true
+
+# Token margins
+# Use number instead of object to apply for all
+margins:
+  note: 0
+  subtrack: 0
+  macro: 1
+  function:
+    nonalias: 1
+    alias: 0
+  notation:
+    section: 1
+    track: 0
+
+# Warning ignorance
+ignorance:
+  - note.duplicate
+
