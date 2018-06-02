@@ -1,29 +1,32 @@
-class TmLog {
+class TmError {
   constructor(messages) {
     this.Errors = []
-    this.Warnings = []
     this.Messages = messages
   }
 
-  format () {
-    this.Errors.map(err => err.format(this.Messages[err.name]))
+  format() {
+    this.Errors.map(err => {
+      const template = this.Messages[err.name]
+      for (const name in this.Args) {
+        const arg = this.render(this.Args[name])
+        template.replace(new RegExp('${' + name + '}', 'g'), arg)
+      }
+      return template
+    })
   }
-}
 
-class TmError {
-  constructor(type, pos, args) {
-    this.Type = type
-    this.Args = args
-    this.Pos = Pos
-  }
-
-  format(template) {
-    for (const name in args) {
-      const arg = this.render(args[name])
-      template.replace(new RegExp('${' + name + '}', 'g'), arg)
+  push(...errors) {
+    for (const err of errors) {
+      if (!err.Args) err.Args = []
+      if (!err.Rank) err.Rank = 1
+      this.Errors.push(err)
     }
-    return template
   }
 }
 
-module.exports = { TmError, TmLog }
+TmError.Token = {
+  InvalidCommand: 'Token::InvalidCommand',
+  FileNotFound: 'Token::FileNotFound'
+}
+
+module.exports = TmError

@@ -48,16 +48,14 @@ class TmDetok {
           result += track.Instruments.map(inst => {
             let result = inst.Space + inst.Name
             inst.Dict.forEach(decl => {
-              if (decl.Generated) {
-                return
-              } else {
+              if (!decl.Generated) {
                 result += '[' + decl.Name
                 if (decl.Pitches) {
                   result += '=' + decl.Pitches.map(TmDetok.detokPitch).join('')
                 }
                 result += ']'
               }
-            });
+            })
             result += this.detokContent(inst.Spec)
             return result
           }).join(',')

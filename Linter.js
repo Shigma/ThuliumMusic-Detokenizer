@@ -1,5 +1,5 @@
 const TmDetok = require('./Detok')
-const { TmError, TmLog } = require('./Error')
+const TmError = require('./Error')
 
 class TmLinter {
   constructor(tokenizer, syntax) {
@@ -10,4 +10,6 @@ class TmLinter {
     return this.Detok.detokenize()
   }
 }
+
+module.exports = TmLinter
 
