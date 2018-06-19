@@ -78,73 +78,73 @@ class TmDetok {
     let result = '';
     for (const token of content) {
       switch (token.Type) {
-      case 'Space':
-        result += token.Content;
-        break;
-      case 'Function': 
-        if (token.Alias === -1) {
-          result += `${token.Name}(${this.detokArgs(token.Args)})`;
-        } else if (token.Alias === 0) {
-          result += `(${token.Name}:${this.detokArgs(token.Args)})`;
-        } else {
-          const alias = this.Syntax.Alias.find(alias => alias.Name === token.Name);
-          if (alias.LeftId !== undefined) {
-            result += this.detokContent(token.Args[alias.LeftId].Content);
-          }
-          for (const sub of alias.Syntax) {
-            if (sub.Type === '@lit') {
-              result += sub.Content;
-            } else {
-              result += token.Args[sub.Id].Origin;
+        case 'Space':
+          result += token.Content;
+          break;
+        case 'Function': 
+          if (token.Alias === -1) {
+            result += `${token.Name}(${this.detokArgs(token.Args)})`;
+          } else if (token.Alias === 0) {
+            result += `(${token.Name}:${this.detokArgs(token.Args)})`;
+          } else {
+            const alias = this.Syntax.Alias.find(alias => alias.Name === token.Name);
+            if (alias.LeftId !== undefined) {
+              result += this.detokContent(token.Args[alias.LeftId].Content);
+            }
+            for (const sub of alias.Syntax) {
+              if (sub.Type === '@lit') {
+                result += sub.Content;
+              } else {
+                result += token.Args[sub.Id].Origin;
+              }
+            }
+            if (alias.RightId !== undefined) {
+              result += this.detokContent(token.Args[alias.RightId].Content);
             }
           }
-          if (alias.RightId !== undefined) {
-            result += this.detokContent(token.Args[alias.RightId].Content);
-          }
-        }
-        break;
-      case 'Note':
-        result += TmDetok.detokNote(token);
-        break;
-      case 'Subtrack':
-        result += '{';
-        if (token.Repeat < -1) result += `${-token.Repeat}*`;
-        result += this.detokContent(token.Content);
-        result += '}';
-        break;
-      case 'Macrotrack':
-        result += '@' + token.Name;
-        break;
-      case 'BarLine':
-        if (token.Skip) {
-          result += '\\';
-        } else if (token.Overlay) {
-          result += '/';
-        } else if (token.Order.includes(0)) {
-          result += '|';
-        } else {
-          const order = token.Order.sort((x, y) => x - y);
-          result += '\\';
-          let i = 0;
-          while (i < order.length) {
-            let j = i + 1;
-            while (j < order.length && order[j] === order[j - 1] + 1) j += 1;
-            if (j === i + 1) {
-              result += `${order[i]},`;
-            } else if (j === i + 2) {
-              result += `${order[i]},${order[i] + 1},`;
-            } else {
-              result += `${order[i]}~${order[j - 1]},`
+          break;
+        case 'Note':
+          result += TmDetok.detokNote(token);
+          break;
+        case 'Subtrack':
+          result += '{';
+          if (token.Repeat < -1) result += `${-token.Repeat}*`;
+          result += this.detokContent(token.Content);
+          result += '}';
+          break;
+        case 'Macrotrack':
+          result += '@' + token.Name;
+          break;
+        case 'BarLine':
+          if (token.Skip) {
+            result += '\\';
+          } else if (token.Overlay) {
+            result += '/';
+          } else if (token.Order.includes(0)) {
+            result += '|';
+          } else {
+            const order = token.Order.sort((x, y) => x - y);
+            result += '\\';
+            let i = 0;
+            while (i < order.length) {
+              let j = i + 1;
+              while (j < order.length && order[j] === order[j - 1] + 1) j += 1;
+              if (j === i + 1) {
+                result += `${order[i]},`;
+              } else if (j === i + 2) {
+                result += `${order[i]},${order[i] + 1},`;
+              } else {
+                result += `${order[i]}~${order[j - 1]},`
+              }
+              i = j;
             }
-            i = j;
+            if (i) result = result.slice(0, -1);
+            result += ':';
           }
-          if (i) result = result.slice(0, -1);
-          result += ':';
-        }
-        break;
-      default:
-        result += '[' + token.Type + ']';
-        break;
+          break;
+        default:
+          result += '[' + token.Type + ']';
+          break;
       }
     }
     return result;
@@ -154,21 +154,21 @@ class TmDetok {
     let result = '';
     for (const arg of args) {
       switch (arg.Type) {
-      case 'String':
-        result += '"' + arg.Content + '"';
-        break;
-      case 'Expression':
-        result += arg.Content;
-        break;
-      case 'Subtrack':
-        result += '{' + arg.Content + '}';
-        break;
-      case 'Macrotrack':
-        result += '@' + arg.Name;
-        break;
-      case 'Function':
-        result += `${arg.Content.Name}(${this.detokArgs(arg.Content.Args)})`;
-        break;
+        case 'String':
+          result += '"' + arg.Content + '"';
+          break;
+        case 'Expression':
+          result += arg.Content;
+          break;
+        case 'Subtrack':
+          result += '{' + arg.Content + '}';
+          break;
+        case 'Macrotrack':
+          result += '@' + arg.Name;
+          break;
+        case 'Function':
+          result += `${arg.Content.Name}(${this.detokArgs(arg.Content.Args)})`;
+          break;
       }
       result += ',';
     }
